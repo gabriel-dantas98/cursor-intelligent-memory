@@ -36,6 +36,24 @@ This will show all available tools, their descriptions, and parameters - useful 
 make dev
 ```
 
+### Docker Publishing
+
+The project supports automated Docker publishing to GitHub Container Registry:
+
+```bash
+# Local publishing
+make publish              # Login + build + push to ghcr.io
+make build-for-ghcr      # Just build locally
+make login-ghcr          # Login to GitHub Container Registry
+
+# Testing with act (GitHub Actions locally)
+make install-act         # Install act tool
+make test-docker-build   # Test Docker workflow locally
+make test-actions        # List available workflows
+```
+
+See [Docker Publishing Guide](docs/docker-publishing.md) for detailed instructions.
+
 ### Installation
 
 #### Option 1: From Source

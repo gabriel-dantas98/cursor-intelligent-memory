@@ -1,9 +1,13 @@
 {
   "mcpServers": {
-    "memory": {
+    "memory-python": {
       "command": "python",
       "args": ["-m", "memory_mcp_server.server"],
       "cwd": "."
+    },
+    "memory-docker": {
+      "command": "docker",
+      "args": ["run", "--rm", "-it", "memory-mcp-server:latest"]
     }
   }
 } 

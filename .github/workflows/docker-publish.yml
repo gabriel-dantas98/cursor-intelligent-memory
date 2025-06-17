@@ -52,6 +52,7 @@ jobs:
           type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Build and push Docker image
+      id: build
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -64,4 +65,8 @@ jobs:
 
     - name: Test Docker image
       run: |
-        docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --help || true 
+        echo "🧪 Testing Docker image..."
+        docker run --rm ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest python -m memory_mcp_server.server --help || true
+        
+    - name: Image digest
+      run: echo "Image digest ${{ steps.build.outputs.digest }}" 
