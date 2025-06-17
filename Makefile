@@ -42,6 +42,30 @@ push-image: build-image ## Build and push Docker image
 	@echo "Pushing Memory MCP server Docker image..."
 	docker push memory-mcp-server:$(TAG)
 
+# GitHub Container Registry targets
+GITHUB_REGISTRY = ghcr.io
+GITHUB_REPO = $(shell basename $(shell git config --get remote.origin.url 2>/dev/null || echo "cursor-intelligent-memory") .git)
+GITHUB_USER = $(shell git config --get remote.origin.url 2>/dev/null | sed -n 's|.*github.com[:/]\([^/]*\)/.*|\1|p' || echo "gdantas")
+GITHUB_IMAGE = $(GITHUB_REGISTRY)/$(GITHUB_USER)/$(GITHUB_REPO)
+
+login-ghcr: ## Login to GitHub Container Registry
+	@echo "🔐 Logging into GitHub Container Registry..."
+	@read -p "Enter your GitHub token: " token; \
+	echo $$token | docker login $(GITHUB_REGISTRY) -u $(GITHUB_USER) --password-stdin
+
+build-for-ghcr: ## Build image for GitHub Container Registry
+	@echo "🔨 Building image for GitHub Container Registry..."
+	docker build -t $(GITHUB_IMAGE):$(TAG) -t $(GITHUB_IMAGE):latest .
+
+push-to-ghcr: build-for-ghcr ## Build and push to GitHub Container Registry
+	@echo "📤 Pushing to GitHub Container Registry..."
+	docker push $(GITHUB_IMAGE):$(TAG)
+	docker push $(GITHUB_IMAGE):latest
+	@echo "✅ Image pushed successfully!"
+	@echo "📦 Image available at: $(GITHUB_IMAGE):$(TAG)"
+
+publish: login-ghcr push-to-ghcr ## Login and publish to GitHub Container Registry
+
 # act (GitHub Actions testing) targets
 install-act: ## Install act for local GitHub Actions testing
 	@echo "📦 Installing act for GitHub Actions testing..."

@@ -1,0 +1,30 @@
+name: Simple Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test básico
+      run: |
+        echo "🚀 Testando act com workflow simples"
+        echo "Python version: $(python3 --version)"
+        echo "Docker disponível: $(command -v docker && echo 'Yes' || echo 'No')"
+        
+    - name: Checkout código
+      uses: actions/checkout@v4
+      
+    - name: Mostrar arquivos
+      run: |
+        echo "📁 Arquivos no repositório:"
+        ls -la
+        
+    - name: Testar build Python
+      run: |
+        echo "🐍 Testando se o projeto Python pode ser importado"
+        python3 -c "import sys; print(f'Python {sys.version}')" 
