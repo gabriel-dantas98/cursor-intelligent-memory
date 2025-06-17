@@ -3,11 +3,23 @@
     "memory-python": {
       "command": "python",
       "args": ["-m", "memory_mcp_server.server"],
-      "cwd": "."
+      "cwd": ".",
+      "env": {
+        "PYTHONPATH": "src"
+      }
     },
     "memory-docker": {
       "command": "docker",
-      "args": ["run", "--rm", "-it", "memory-mcp-server:latest"]
+      "args": [
+        "run", 
+        "--rm", 
+        "-i",
+        "-v", 
+        "${PWD}:/workspace",
+        "-w", 
+        "/workspace",
+        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory"
+      ]
     }
   }
-} 
+}

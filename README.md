@@ -176,4 +176,159 @@ None required - the server operates on the current working directory's `.cursor/
 
 ## Development
 
-The server follows FastMCP patterns with comprehensive logging and error handling. Each tool includes detailed descriptions for optimal AI integration. 
+The server follows FastMCP patterns with comprehensive logging and error handling. Each tool includes detailed descriptions for optimal AI integration.
+
+# Cursor Intelligent Memory MCP Server
+
+An intelligent memory system for Cursor IDE that provides persistent context across development sessions.
+
+## Features
+
+- **Two-layer memory architecture**: Short-term (session-based) and long-term (persistent) memory
+- **Automatic pattern recognition**: Learns from your development patterns
+- **Error tracking**: Remembers and prevents repeated issues
+- **Knowledge consolidation**: Promotes frequently used patterns to long-term memory
+- **Debug tools**: Execute bash commands for debugging and exploration
+- **MCP integration**: Seamless integration with Cursor IDE
+
+## Installation
+
+### Method 1: Python Package (Recommended for Development)
+
+```bash
+# Clone the repository
+git clone https://github.com/gabriel-dantas98/cursor-intelligent-memory.git
+cd cursor-intelligent-memory
+
+# Install in development mode
+pip install -e .
+```
+
+### Method 2: Docker Container (Recommended for Production)
+
+```bash
+# Pull the pre-built image
+docker pull ghcr.io/gabriel-dantas98/cursor-intelligent-memory
+```
+
+## Configuration
+
+Add to your Cursor MCP configuration file (`.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "memory-python": {
+      "command": "python",
+      "args": ["-m", "memory_mcp_server.server"],
+      "cwd": ".",
+      "env": {
+        "PYTHONPATH": "src"
+      }
+    },
+    "memory-docker": {
+      "command": "docker",
+      "args": [
+        "run", 
+        "--rm", 
+        "-i",
+        "-v", 
+        "${PWD}:/workspace",
+        "-w", 
+        "/workspace",
+        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory"
+      ]
+    }
+  }
+}
+```
+
+### Configuration Explanation
+
+#### `memory-python` (Direct Execution)
+- Uses your local Python installation
+- Sets `PYTHONPATH` to locate the module correctly
+- Runs in your current working directory
+- **Requires**: `pip install -e .` or manual installation
+
+#### `memory-docker` (Docker Execution)  
+- Mounts your current directory (`${PWD}`) to `/workspace` in the container
+- Sets the container's working directory to `/workspace`
+- **Critical**: The volume mount ensures the container can access your `.cursor/memory` files
+- Runs as non-root user (uid 1000) for security
+
+### Filesystem Access Requirements
+
+Both configurations ensure the MCP server can access:
+- `.cursor/memory/short-term/` (session-based memory files)
+- `.cursor/memory/long-term/` (persistent knowledge base)
+- `.cursor/rules/` (configuration rules)
+
+**Important**: Without proper filesystem access, the memory system cannot read or write your project's memory files, making it non-functional.
+
+## Available Tools
+
+The Memory MCP Server provides the following tools for managing intelligent memory:
+
+### Core Memory Tools
+
+#### `validate_memory_system`
+Validates if the Cursor memory system directories exist and are properly configured.
+- **Returns**: Setup status and guides next steps
+- **Use**: Essential for determining if memory system initialization is needed
+
+#### `get_memory_prompt_for_current_state`
+Returns the appropriate prompt based on memory system status.
+- **If configured**: Returns the active memory prompt
+- **If not configured**: Returns complete setup instructions
+- **Use**: Get the right guidance for the current state
+
+#### `list_memory_files`
+Lists all available memory files in both short-term and long-term directories.
+- **Returns**: File metadata (sizes, modification dates, basic statistics)
+- **Use**: Understanding what memory content is available for loading
+
+#### `load_memory_files`
+Loads and returns the contents of specific memory files or all memory files.
+- **Parameters**: 
+  - `file_names` (optional): List of specific files to load
+- **Use**: Reading memory content into the current context for session initialization
+
+#### `append_to_memory`
+Appends new content to a specific memory file.
+- **Parameters**:
+  - `file_name`: The memory file to append to
+  - `content`: The content to append
+  - `add_timestamp` (optional): Whether to add timestamp (default: true)
+- **Use**: Persisting new learnings, errors, decisions, or insights
+
+### Debug Tools
+
+#### `debug_exec_command`
+Executes bash commands in the container environment for debugging purposes.
+- **Parameters**:
+  - `command`: The bash command to execute
+  - `working_directory` (optional): Directory to execute the command in
+- **Security**: Only allows safe read-only commands by default
+- **Timeout**: 30 seconds maximum execution time
+- **Use**: Listing directories, checking file permissions, debugging filesystem issues
+
+**Safe commands supported**:
+- `ls`, `find`, `cat`, `head`, `tail`
+- `pwd`, `whoami`, `id`, `df`, `du`
+- `ps`, `env`, `which`, `file`, `stat`, `tree`
+
+**Example usage**:
+```bash
+# List memory directory structure
+debug_exec_command("find .cursor -type d")
+
+# Check current directory contents
+debug_exec_command("ls -la")
+
+# View disk usage
+debug_exec_command("df -h .")
+
+# Check environment info
+debug_exec_command("whoami && pwd")
+```

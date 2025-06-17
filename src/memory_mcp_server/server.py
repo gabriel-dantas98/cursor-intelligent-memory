@@ -2,6 +2,7 @@
 
 import os
 import logging
+import subprocess
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 from pathlib import Path
@@ -43,8 +44,8 @@ class MemoryConfig:
         return os.path.join(self.base_path, ".cursor", "rules")
 
 def get_memory_config() -> MemoryConfig:
-    """Get memory configuration with current working directory as base."""
-    base_path = os.getcwd()
+    """Get memory configuration with environment variable or current working directory as base."""
+    base_path = os.environ.get('CURSOR_MEMORY_BASE_PATH', os.getcwd())
     return MemoryConfig(base_path=base_path)
 
 # Prompts are now imported from prompts.py module
@@ -63,6 +64,7 @@ async def validate_memory_system(ctx: Context) -> Dict[str, Any]:
     await ctx.info("Validating Cursor memory system setup")
     
     config = get_memory_config()
+    await ctx.info(f"Memory system base path: {config.base_path}")
     
     # Check if directories exist
     short_term_exists = os.path.exists(config.short_term_path)
@@ -319,83 +321,73 @@ async def load_memory_files(ctx: Context, file_names: Optional[List[str]] = None
         }
     }
 
-@mcp.tool(description="Appends new content to a specific memory file. Useful for persisting new learnings, errors, decisions, or insights during development sessions. Supports both short-term and long-term memory files. Creates timestamp entries for tracking.")
-async def append_to_memory(ctx: Context, file_name: str, content: str, add_timestamp: bool = True) -> Dict[str, Any]:
+@mcp.tool(description="Suggests memory content to be added to specific memory files. Returns a formatted prompt that encourages the Cursor IDE to add the suggested content to the appropriate memory file. Helps maintain memory system without direct file manipulation.")
+async def suggest_memory_update(ctx: Context, file_name: str, content: str, add_timestamp: bool = True) -> Dict[str, Any]:
     """
-    Appends new content to a specific memory file.
+    Suggests content to be added to a specific memory file.
     
     Args:
         ctx: The MCP context.
-        file_name: The name of the memory file to append to.
-        content: The content to append.
-        add_timestamp: Whether to add a timestamp to the entry.
+        file_name: The name of the memory file to suggest content for.
+        content: The content to suggest adding.
+        add_timestamp: Whether to suggest adding a timestamp to the entry.
         
     Returns:
-        A dictionary containing the operation result.
+        A dictionary containing a suggestion prompt for Cursor IDE.
     """
-    await ctx.info(f"Appending content to memory file: {file_name}")
+    await ctx.info(f"Generating memory update suggestion for: {file_name}")
     
     config = get_memory_config()
     
-    # Determine the full path
-    possible_paths = [
-        os.path.join(config.short_term_path, file_name),
-        os.path.join(config.long_term_path, file_name),
-        os.path.join(config.rules_path, file_name)
-    ]
+    # Determine the appropriate file path and category
+    memory_category = "short-term"
+    suggested_path = os.path.join(config.short_term_path, file_name)
     
-    target_path = None
-    for path in possible_paths:
-        if os.path.exists(path):
-            target_path = path
-            break
+    if file_name in ["project-knowledge.md", "known-issues.md"]:
+        memory_category = "long-term"
+        suggested_path = os.path.join(config.long_term_path, file_name)
+    elif "knowledge" in file_name.lower() or "pattern" in file_name.lower():
+        memory_category = "long-term"
+        suggested_path = os.path.join(config.long_term_path, file_name)
+    elif file_name.endswith(".mdc"):
+        memory_category = "rules"
+        suggested_path = os.path.join(config.rules_path, file_name)
     
-    # If file doesn't exist, default to working-memory.md in short-term
-    if not target_path:
-        if file_name == "working-memory.md" or not file_name.endswith(".md"):
-            target_path = os.path.join(config.short_term_path, "working-memory.md")
-        else:
-            # For other files, put in appropriate directory based on content type
-            if "knowledge" in file_name.lower() or "pattern" in file_name.lower():
-                target_path = os.path.join(config.long_term_path, file_name)
-            else:
-                target_path = os.path.join(config.short_term_path, file_name)
+    # Prepare timestamp prefix if requested
+    timestamp_prefix = ""
+    if add_timestamp:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_prefix = f"## {timestamp}\n"
     
-    try:
-        # Ensure directory exists
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        
-        # Prepare content with optional timestamp
-        if add_timestamp:
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            formatted_content = f"\n## {timestamp}\n{content}\n"
-        else:
-            formatted_content = f"\n{content}\n"
-        
-        # Append to file
-        with open(target_path, 'a', encoding='utf-8') as f:
-            f.write(formatted_content)
-        
-        # Get file stats
-        stat = os.stat(target_path)
-        
-        await ctx.info(f"Successfully appended {len(content)} characters to {file_name}")
-        
-        return {
-            "success": True,
-            "file_path": target_path,
-            "content_added": len(content),
-            "file_size": stat.st_size,
-            "timestamp_added": add_timestamp
-        }
+    # Format the suggested content
+    formatted_content = f"{timestamp_prefix}{content}"
     
-    except Exception as e:
-        await ctx.error(f"Failed to append to memory file {file_name}: {str(e)}")
-        return {
-            "success": False,
-            "error": str(e),
-            "file_path": target_path
-        }
+    # Create the suggestion prompt
+    suggestion_prompt = f"""💾 **Memory Update Suggestion**
+
+**Target**: `{file_name}` ({memory_category} memory)
+**Location**: `{suggested_path}`
+
+**Suggested Content to Add**:
+```markdown
+{formatted_content}
+```
+
+**Action Needed**: Please add the above content to the memory file `{file_name}` to maintain our intelligent memory system. This will help preserve important insights and patterns for future sessions.
+
+**Why This Matters**: This content represents valuable learning that should be consolidated in our memory system following the intelligent-memory.mdc guidelines."""
+    
+    await ctx.info(f"Generated suggestion prompt for {file_name} ({len(content)} chars)")
+    
+    return {
+        "suggestion_prompt": suggestion_prompt,
+        "target_file": file_name,
+        "target_path": suggested_path,
+        "memory_category": memory_category,
+        "content_length": len(content),
+        "timestamp_suggested": add_timestamp,
+        "formatted_content": formatted_content
+    }
 
 def main():
     """Main entry point for the Memory MCP server."""

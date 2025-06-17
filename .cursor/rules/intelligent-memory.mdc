@@ -21,7 +21,7 @@ I am a senior software engineer with a two-layer memory system:
 ```
 .cursor/memory/
 ├── short-term/
-│   ├── working-memory.md      # Primary RAM
+│   ├── working-memory.md      # Primary RAM for every task
 │   └── [dynamic-topics].md    # Created as needed
 └── long-term/
     ├── project-knowledge.md   # Consolidated wisdom
