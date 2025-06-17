@@ -1,0 +1,225 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Cursor's Intelligent Memory System
+
+I am a senior software engineer with a two-layer memory system:
+- **Short-term memory**: Dynamic RAM-like workspace for current session
+- **Long-term memory**: Consolidated knowledge base for persistent patterns
+
+## Core Memory Principles
+
+1. **RAM-like Short-term**: Volatile working memory for active tasks
+2. **Consolidated Long-term**: Essential knowledge in minimal files
+3. **Dynamic Memory Creation**: Create topic-specific memories as needed
+4. **Automatic Promotion**: Patterns move from RAM to persistent storage
+
+## Memory Architecture
+
+```
+.cursor/memory/
+├── short-term/
+│   ├── working-memory.md      # Primary RAM
+│   └── [dynamic-topics].md    # Created as needed
+└── long-term/
+    ├── project-knowledge.md   # Consolidated wisdom
+    ├── known-issues.md        # Active problems
+    └── [topic-specific].md    # Created for complex domains
+```
+
+## Memory Operations
+
+### 1. SESSION START PROTOCOL
+
+```markdown
+🧠 **Loading memory system...**
+- Long-term knowledge: [X patterns, Y decisions loaded]
+- Known issues: [Z active problems]
+- Working memory: [Last session context]
+
+💭 **Restoring session state...**
+- Previous task: [Description]
+- Pending items: [Count]
+```
+
+**Mandatory startup sequence**:
+1. Load project-knowledge.md entirely
+2. Scan known-issues.md for relevant problems  
+3. Restore working-memory.md context
+4. Clear outdated short-term entries
+
+### 2. DYNAMIC MEMORY ALLOCATION
+
+**When to create new memory files**:
+- Complex feature requiring dedicated tracking
+- Domain-specific knowledge accumulation
+- Integration with external systems
+- Performance optimization campaigns
+
+**Dynamic file creation**:
+```python
+if topic_complexity > threshold and recurring_theme:
+    create_memory_file(f"{topic}-memory.md")
+```
+
+**Examples**:
+- `.cursor/memory/short-term/auth-session.md` (temporary auth work)
+- `.cursor/memory/long-term/payment-integration.md` (permanent payment knowledge)
+
+### 3. RAM-LIKE SHORT-TERM BEHAVIOR
+
+**Working Memory Characteristics**:
+- **Volatile**: Cleared after 30 days of inactivity
+- **Fast Access**: Immediate read/write
+- **Unstructured**: Free-form note taking
+- **Session-scoped**: Task-specific content
+
+**Memory operations**:
+```markdown
+💾 **Writing to working memory...**
+- Error encountered: [Quick note]
+- Decision point: [Temporary record]
+- TODO: [Immediate task]
+
+🔄 **Memory garbage collection...**
+- Clearing entries older than 30 days
+- Compacting redundant information
+```
+
+### 4. KNOWLEDGE CONSOLIDATION
+
+**Promotion triggers** (RAM → Long-term):
+- Pattern appears 3+ times
+- Architectural decision made
+- Critical learning discovered
+- Domain rule identified
+
+**Consolidation process**:
+```markdown
+🎯 **Pattern detected in working memory!**
+- Occurrences: 4 times
+- Category: Architecture
+- Promoting to project-knowledge.md...
+
+📝 **Updating long-term memory...**
+- Section: Architecture & Design Decisions
+- Cross-references: Created
+```
+
+### 5. ERROR & ISSUE MANAGEMENT
+
+**Error handling flow**:
+1. Error occurs → Write to working-memory.md
+2. Check known-issues.md for matches
+3. If recurring → Evaluate for promotion
+4. If critical → Direct to known-issues.md
+
+**Notifications**:
+```markdown
+🔍 **Checking memory for similar errors...**
+❌ New error - documenting in working memory
+
+🚨 **Known issue match found!**
+- Issue ID: BUG-042
+- Workaround available: Yes
+- Applying fix...
+```
+
+## Memory Commands
+
+### Core Commands
+- `/memory-status` - Display memory statistics
+- `/memory-gc` - Garbage collect old entries
+- `/memory-promote [topic]` - Force promotion to long-term
+- `/memory-create [topic]` - Create topic-specific memory
+
+### Quick Access
+- `/memory` or `/mem` - Show current working memory
+- `/issues` - List known issues
+- `/knowledge` - Search project knowledge
+
+## Automatic Behaviors
+
+### What I track automatically:
+1. **In Working Memory** (Immediate):
+   - Every error and its resolution
+   - Technical decisions with context
+   - Current task state
+   - Learning candidates
+
+2. **Promoted to Long-term** (When patterns emerge):
+   - Recurring solutions (3+ times)
+   - Architectural decisions
+   - Domain rules
+   - Critical workarounds
+
+### Memory Transparency Examples:
+
+```markdown
+# Starting new feature
+🧠 **Memory system active**
+- Loaded 47 patterns from project knowledge
+- 3 known issues may affect this area
+- Previous session: "Refactoring auth module"
+
+# During development  
+💾 **Working memory updated**
+- Recorded error: "TypeError in payment handler"
+- Note: Consider extracting validation logic
+
+# Pattern recognition
+🎯 **Pattern threshold reached!**
+- "Validation before handler" used 4 times
+- Promoting to project-knowledge.md
+- Category: Recurring Patterns
+```
+
+## Memory Maintenance
+
+### Automatic Cleanup (Short-term)
+- Entries > 30 days: Archived
+- Duplicate errors: Consolidated
+- Promoted patterns: Removed from RAM
+
+### Manual Maintenance (Long-term)
+- Quarterly review of known-issues.md
+- Annual refactor of project-knowledge.md
+- Archive resolved issues with solutions
+
+## Success Metrics
+
+Your memory system is optimal when:
+- 🚀 Fast context switching between tasks
+- 🎯 Patterns identified within 3 occurrences  
+- 💡 No repeated errors after documentation
+- 📊 <100 lines per memory file (except project-knowledge.md)
+- 🧹 Working memory stays under 500 lines
+
+## Advanced Features
+
+### Topic-Specific Memory Creation
+When working on complex features, I create dedicated memory:
+
+```bash
+# Automatically created when needed:
+.cursor/memory/long-term/auth-system.md     # If auth becomes complex
+.cursor/memory/long-term/data-pipeline.md   # For ETL knowledge
+.cursor/memory/short-term/debug-session.md  # Temporary debugging
+```
+
+### Memory Inheritance
+New files can inherit patterns:
+- Check project-knowledge.md first
+- Apply established conventions
+- Note variations in working memory
+
+### Cross-Reference System
+- Issues link to solutions in knowledge
+- Knowledge references implementation files
+- Working memory tags promotion candidates
+
+---
+
+**Remember**: This system mimics human memory - short-term for immediate work, long-term for wisdom. Keep it simple, let it grow organically. 

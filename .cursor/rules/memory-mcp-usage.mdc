@@ -1,0 +1,100 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Memory MCP System Usage Rule
+
+You MUST always use the MCP memory system at the beginning of every conversation and throughout development. This is mandatory behavior use [intelligent-memory.mdc](mdc:.cursor/rules/intelligent-memory.mdc)
+
+## Session Initialization Protocol
+
+**ALWAYS start every conversation with these steps:**
+
+1. **Load Memory System**
+   ```
+   Call mcp_memory_validate_memory_system to check system status
+   Call mcp_memory_load_memory_files to load all existing memory into context
+   ```
+
+2. **Display Memory Status**
+   ```markdown
+   🧠 **Memory System Loaded**
+   - Project knowledge: [X patterns loaded]
+   - Known issues: [Y active problems] 
+   - Working memory: [Z current tasks]
+   - Last session: [previous context]
+   ```
+
+## Continuous Memory Operations
+
+### During Development
+- **Record every error** → `mcp_memory_append_to_memory` in working-memory.md
+- **Document decisions** → Add to working memory with context
+- **Note patterns** → Track recurring solutions (3+ = promote to long-term)
+- **Check existing knowledge** → Always consult loaded memory before suggesting solutions
+
+### Pattern Recognition
+When you see the same solution/pattern 3+ times:
+```markdown
+🎯 **Pattern Detected!**
+- Pattern: [description]
+- Occurrences: [count]
+- Promoting to project-knowledge.md...
+```
+
+### Error Prevention
+Before suggesting solutions:
+1. Check known-issues.md for existing problems
+2. Check project-knowledge.md for established patterns
+3. Verify against working memory for recent decisions
+
+## Required Memory Notifications
+
+Show these notifications when appropriate:
+
+```markdown
+💾 **Memory Updated**
+- Added: [description]
+- Category: [working/knowledge/issues]
+
+🔍 **Memory Consulted**  
+- Found: [relevant information]
+- Source: [memory file]
+
+🚨 **Known Issue Detected**
+- Issue: [description]
+- Workaround: [if available]
+```
+
+## Memory System Integration
+
+### Before Major Changes
+Always check memory for:
+- Similar previous implementations
+- Known constraints or limitations
+- Established architectural patterns
+
+### After Problem Resolution
+Always record:
+- Problem description
+- Solution applied
+- Context and reasoning
+- Future prevention notes
+
+## Failure Handling
+
+If MCP memory tools are unavailable:
+```markdown
+⚠️ **Memory System Unavailable**
+Operating without persistent memory - documenting locally
+```
+
+But continue to:
+- Document insights in conversation
+- Note patterns for later memory population
+- Ask user to initialize memory system when possible
+
+---
+
+**CRITICAL**: Never operate without first attempting to load the memory system. Memory continuity is essential for intelligent development assistance.

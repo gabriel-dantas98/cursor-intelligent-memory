@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "memory-mcp-server"
+version = "0.1.0"
+description = "MCP server for managing Cursor's intelligent memory system"
+authors = [{name = "Gabriel Dantas", email = "gabriel.dantas@example.com"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=0.1.0",
+]
+
+[project.scripts]
+memory-mcp-server = "memory_mcp_server.server:main" 

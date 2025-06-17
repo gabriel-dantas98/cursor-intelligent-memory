@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "python",
+      "args": ["-m", "memory_mcp_server.server"],
+      "cwd": "."
+    }
+  }
+} 
