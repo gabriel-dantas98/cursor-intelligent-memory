@@ -6,6 +6,16 @@
       "env": {
         "CURSOR_MEMORY_BASE_PATH": "/Users/gabriel.dantas/git/gdantas/cursor-intelligent-memory"
       }
+    },
+    "memory-docker": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-v", "./:/workspace",
+        "-w", "/workspace",
+        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory"
+      ],
+      "cwd": "."
     }
   }
 } 
