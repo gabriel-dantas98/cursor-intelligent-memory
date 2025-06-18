@@ -1,25 +1,21 @@
 {
   "mcpServers": {
-    "memory-python": {
+    "memory": {
       "command": "python",
       "args": ["-m", "memory_mcp_server.server"],
-      "cwd": ".",
       "env": {
-        "PYTHONPATH": "src"
+        "CURSOR_MEMORY_BASE_PATH": "/Users/gabriel.dantas/git/gdantas/cursor-intelligent-memory"
       }
     },
     "memory-docker": {
       "command": "docker",
       "args": [
-        "run", 
-        "--rm", 
-        "-i",
-        "-v", 
-        "${PWD}:/workspace",
-        "-w", 
-        "/workspace",
+        "run", "--rm", "-i",
+        "-v", "./:/workspace",
+        "-w", "/workspace",
         "ghcr.io/gabriel-dantas98/cursor-intelligent-memory"
-      ]
+      ],
+      "cwd": "."
     }
   }
-}
+} 
