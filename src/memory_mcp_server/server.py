@@ -321,37 +321,21 @@ async def load_memory_files(ctx: Context, file_names: Optional[List[str]] = None
         }
     }
 
-@mcp.tool(description="Suggests memory content to be added to specific memory files. Returns a formatted prompt that encourages the Cursor IDE to add the suggested content to the appropriate memory file. Helps maintain memory system without direct file manipulation.")
-async def suggest_memory_update(ctx: Context, file_name: str, content: str, add_timestamp: bool = True) -> Dict[str, Any]:
+@mcp.tool(description="Updates memory files with new content. Returns a prompt instructing Cursor to immediately persist the content to the specified memory file.")
+async def memory_update(ctx: Context, file_name: str, content: str, add_timestamp: bool = True) -> Dict[str, Any]:
     """
-    Suggests content to be added to a specific memory file.
+    Updates memory files with new content.
     
     Args:
         ctx: The MCP context.
-        file_name: The name of the memory file to suggest content for.
-        content: The content to suggest adding.
-        add_timestamp: Whether to suggest adding a timestamp to the entry.
+        file_name: The name of the memory file to update or create.
+        content: The content to add.
+        add_timestamp: Whether to add a timestamp to the entry.
         
     Returns:
-        A dictionary containing a suggestion prompt for Cursor IDE.
+        A dictionary containing a prompt for immediate memory persistence.
     """
-    await ctx.info(f"Generating memory update suggestion for: {file_name}")
-    
-    config = get_memory_config()
-    
-    # Determine the appropriate file path and category
-    memory_category = "short-term"
-    suggested_path = os.path.join(config.short_term_path, file_name)
-    
-    if file_name in ["project-knowledge.md", "known-issues.md"]:
-        memory_category = "long-term"
-        suggested_path = os.path.join(config.long_term_path, file_name)
-    elif "knowledge" in file_name.lower() or "pattern" in file_name.lower():
-        memory_category = "long-term"
-        suggested_path = os.path.join(config.long_term_path, file_name)
-    elif file_name.endswith(".mdc"):
-        memory_category = "rules"
-        suggested_path = os.path.join(config.rules_path, file_name)
+    await ctx.info(f"Generating memory update for: {file_name}")
     
     # Prepare timestamp prefix if requested
     timestamp_prefix = ""
@@ -359,33 +343,26 @@ async def suggest_memory_update(ctx: Context, file_name: str, content: str, add_
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_prefix = f"## {timestamp}\n"
     
-    # Format the suggested content
+    # Format the content
     formatted_content = f"{timestamp_prefix}{content}"
     
-    # Create the suggestion prompt
-    suggestion_prompt = f"""💾 **Memory Update Suggestion**
+    # Create the direct prompt
+    prompt = f"""💾 **Memory Update Required**
 
-**Target**: `{file_name}` ({memory_category} memory)
-**Location**: `{suggested_path}`
+**File**: `{file_name}`
 
-**Suggested Content to Add**:
+**Content to Add**:
 ```markdown
 {formatted_content}
 ```
-
-**Action Needed**: Please add the above content to the memory file `{file_name}` to maintain our intelligent memory system. This will help preserve important insights and patterns for future sessions.
-
-**Why This Matters**: This content represents valuable learning that should be consolidated in our memory system following the intelligent-memory.mdc guidelines."""
+**Why This Matters**: This content represents valuable learning that should be consolidated in our memory system following the intelligent-memory.mdc guidelines.
+**CURSOR: Persist this memory immediately to maintain our intelligent memory system.**"""
     
-    await ctx.info(f"Generated suggestion prompt for {file_name} ({len(content)} chars)")
+    await ctx.info(f"Generated memory update prompt for {file_name}")
     
     return {
-        "suggestion_prompt": suggestion_prompt,
+        "prompt": prompt,
         "target_file": file_name,
-        "target_path": suggested_path,
-        "memory_category": memory_category,
-        "content_length": len(content),
-        "timestamp_suggested": add_timestamp,
         "formatted_content": formatted_content
     }
 
