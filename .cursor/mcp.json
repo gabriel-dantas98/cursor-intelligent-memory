@@ -13,7 +13,7 @@
         "run", "--rm", "-i",
         "-v", "./:/workspace",
         "-w", "/workspace",
-        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory"
+        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory:main"
       ],
       "cwd": "."
     }
