@@ -1,11 +1,9 @@
 {
   "mcpServers": {
-    "memory": {
+    "memory-local": {
       "command": "python",
       "args": ["-m", "memory_mcp_server.server"],
-      "env": {
-        "CURSOR_MEMORY_BASE_PATH": "/Users/gabriel.dantas/git/gdantas/cursor-intelligent-memory"
-      }
+      "cwd": "."
     },
     "memory-docker": {
       "command": "docker",

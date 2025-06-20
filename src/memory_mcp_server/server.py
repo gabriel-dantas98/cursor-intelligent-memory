@@ -321,59 +321,52 @@ async def load_memory_files(ctx: Context, file_names: Optional[List[str]] = None
         }
     }
 
-@mcp.tool(description="Updates memory files with new content. Returns a prompt instructing Cursor to immediately persist the content to the specified memory file.")
-async def memory_update(ctx: Context, file_name: str, content: str, add_timestamp: bool = True) -> Dict[str, Any]:
+@mcp.tool(description="Updates memory files - returns executable script")
+async def memory_update(ctx: Context, file_name: str, content: str, add_timestamp: bool = True, memory_type: str = "short-term") -> Dict[str, Any]:
     """
-    Updates memory files with new content.
-    
-    Args:
-        ctx: The MCP context.
-        file_name: The name of the memory file to update or create.
-        content: The content to add.
-        add_timestamp: Whether to add a timestamp to the entry.
-        
-    Returns:
-        A dictionary containing a prompt for immediate memory persistence.
+    Returns an executable script for memory updates.
     """
-    await ctx.info(f"Generating memory update for: {file_name}")
-    
-    # Prepare timestamp prefix if requested
     timestamp_prefix = ""
     if add_timestamp:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         timestamp_prefix = f"## {timestamp}\n"
     
-    # Format the content
     formatted_content = f"{timestamp_prefix}{content}"
+    file_path = f".cursor/memory/{memory_type}/{file_name}"
     
-    # Determine file path based on file name
-    config = get_memory_config()
-    
-    if file_name in ["project-knowledge.md", "known-issues.md"]:
-        file_path = os.path.join(config.long_term_path, file_name)
-    elif "knowledge" in file_name.lower() or "pattern" in file_name.lower():
-        file_path = os.path.join(config.long_term_path, file_name)
-    elif file_name.endswith(".mdc"):
-        file_path = os.path.join(config.rules_path, file_name)
-    else:
-        file_path = os.path.join(config.short_term_path, file_name)
-    
-    await ctx.info(f"Generated memory update task for {file_name}")
-    
-    return {
-        "task": f"""📝 TASK: Update Memory File
+    # Gerar script Python
+    python_script = f'''#!/usr/bin/env python3
+import os
+from pathlib import Path
 
-1. Open or create: {file_path}
-2. Add this content:
+# Memory update script
+file_path = "{file_path}"
+content = """{formatted_content}"""
+
+# Create directory if it doesn't exist
+Path(file_path).parent.mkdir(parents=True, exist_ok=True)
+
+# Append to file
+mode = "a" if os.path.exists(file_path) else "w"
+with open(file_path, mode) as f:
+    if mode == "a" and os.path.getsize(file_path) > 0:
+        f.write("\\n\\n")
+    f.write(content)
+
+print(f"✅ Memory updated: {{file_path}}")
+'''
+    
+    # Gerar comando bash
+    bash_command = f"""mkdir -p $(dirname "{file_path}") && cat >> "{file_path}" << 'EOF'
 
 {formatted_content}
-
-3. Save the file
-
-This is required for the memory system to work correctly.""",
-        "target_file": file_name,
-        "file_path": file_path,
-        "formatted_content": formatted_content
+EOF"""
+    
+    return {
+        "instruction": f"Run this script to update memory at {file_path}:",
+        "python_script": python_script,
+        "bash_command": bash_command,
+        "file_path": file_path
     }
 
 def main():
