@@ -66,6 +66,32 @@ push-to-ghcr: build-for-ghcr ## Build and push to GitHub Container Registry
 
 publish: login-ghcr push-to-ghcr ## Login and publish to GitHub Container Registry
 
+# Release management
+create-release: ## Create a new release (usage: make create-release VERSION=1.0.0)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "❌ VERSION is required. Usage: make create-release VERSION=1.0.0"; \
+		exit 1; \
+	fi
+	@echo "🚀 Creating release v$(VERSION)..."
+	@git tag -a v$(VERSION) -m "Release v$(VERSION)"
+	@git push origin v$(VERSION)
+	@echo "✅ Release v$(VERSION) created successfully!"
+	@echo "📦 GitHub Actions will automatically build and publish the Docker image"
+
+list-releases: ## List all releases
+	@echo "📋 Available releases:"
+	@git tag -l | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sort -V
+
+delete-release: ## Delete a release (usage: make delete-release VERSION=1.0.0)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "❌ VERSION is required. Usage: make delete-release VERSION=1.0.0"; \
+		exit 1; \
+	fi
+	@echo "🗑️  Deleting release v$(VERSION)..."
+	@git tag -d v$(VERSION) || true
+	@git push origin :refs/tags/v$(VERSION) || true
+	@echo "✅ Release v$(VERSION) deleted"
+
 # act (GitHub Actions testing) targets
 install-act: ## Install act for local GitHub Actions testing
 	@echo "📦 Installing act for GitHub Actions testing..."

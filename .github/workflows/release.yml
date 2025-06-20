@@ -1,0 +1,146 @@
+name: Release and Publish
+
+on:
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  release:
+    name: Build and Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        # Remove 'v' prefix if present
+        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${VERSION#v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        echo "🏷️  Release version: $VERSION"
+
+    - name: Generate Docker metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest
+        labels: |
+          org.opencontainers.image.title=Cursor Intelligent Memory MCP Server
+          org.opencontainers.image.description=Sistema de memória inteligente para Cursor IDE
+          org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          org.opencontainers.image.revision=${{ github.sha }}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VERSION=${{ steps.version.outputs.version }}
+          BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          COMMIT_SHA=${{ github.sha }}
+
+    - name: Test Docker image
+      run: |
+        echo "🧪 Testing Docker image functionality..."
+        echo "Testing basic import..."
+        docker run --rm \
+          -v $PWD:/workspace \
+          -w /workspace \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
+          python -c "from memory_mcp_server.server import mcp; print('✅ Import successful')"
+        
+        echo "Testing tool discovery..."
+        docker run --rm \
+          -v $PWD:/workspace \
+          -w /workspace \
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
+          python test_discovery.py
+
+    - name: Generate release summary
+      run: |
+        echo "🚀 **Release Summary**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version**: ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Digest**: ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Platforms**: linux/amd64, linux/arm64" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Available Tags:" >> $GITHUB_STEP_SUMMARY
+        echo "- \`latest\` - Latest stable release" >> $GITHUB_STEP_SUMMARY
+        echo "- \`${{ steps.version.outputs.version }}\` - Specific version" >> $GITHUB_STEP_SUMMARY
+        echo "- \`$(echo ${{ steps.version.outputs.version }} | cut -d. -f1-2)\` - Major.Minor" >> $GITHUB_STEP_SUMMARY
+        echo "- \`$(echo ${{ steps.version.outputs.version }} | cut -d. -f1)\` - Major version" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Usage:" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+        echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  update-readme:
+    name: Update README with new version
+    needs: release
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update README version references
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${VERSION#v}
+        
+        # Update Docker image references in README
+        sed -i "s|ghcr.io/gabriel-dantas98/cursor-intelligent-memory:main|ghcr.io/gabriel-dantas98/cursor-intelligent-memory:$VERSION|g" README.md
+        
+        echo "📝 Updated README.md with version $VERSION"
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+        if git diff --quiet; then
+          echo "No changes to commit"
+        else
+          git add README.md
+          git commit -m "docs: update Docker image version to ${GITHUB_REF#refs/tags/}"
+          git push
+          echo "✅ README updated with new version"
+        fi 

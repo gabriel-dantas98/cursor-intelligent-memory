@@ -69,7 +69,7 @@ pip install -e .
 - `get_memory_prompt_for_current_state` - Retorna prompts baseados no estado atual
 - `list_memory_files` - Lista arquivos de memória com metadados
 - `load_memory_files` - Carrega conteúdo dos arquivos de memória
-- `suggest_memory_update` - Sugere atualizações para arquivos de memória
+- `memory_update` - Atualiza arquivos de memória com novo conteúdo
 
 ## Desenvolvimento
 
@@ -84,13 +84,15 @@ make dev
 make build-image
 
 # Publicar no GitHub Container Registry  
-make publish
+make push-to-ghcr
 
 # Comandos auxiliares
 make install          # Instalar dependências
 make run             # Executar servidor MCP
 make clean           # Limpar artefatos de build
-make test-actions    # Testar GitHub Actions localmente
+make test-actions     # Testar GitHub Actions localmente
+make login-ghcr       # Login no GitHub Container Registry
+make install-act      # Instalar act para testes locais
 ```
 
 ## Como funciona?
