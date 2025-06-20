@@ -78,14 +78,16 @@ jobs:
         echo "Testing basic import..."
         docker run --rm \
           -v $PWD:/workspace \
-          -w /workspace \
+          -w /app \
+          -e PYTHONPATH=/app \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
-          python -c "from memory_mcp_server.server import mcp; print('✅ Import successful')"
+          python -c "from src.memory_mcp_server.server import mcp; print('✅ Import successful')"
         
         echo "Testing tool discovery..."
         docker run --rm \
           -v $PWD:/workspace \
           -w /workspace \
+          -e PYTHONPATH=/app \
           ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }} \
           python test_discovery.py
 
