@@ -346,23 +346,33 @@ async def memory_update(ctx: Context, file_name: str, content: str, add_timestam
     # Format the content
     formatted_content = f"{timestamp_prefix}{content}"
     
-    # Create the direct prompt
-    prompt = f"""💾 **Memory Update Required**
-
-**File**: `{file_name}`
-
-**Content to Add**:
-```markdown
-{formatted_content}
-```
-**Why This Matters**: This content represents valuable learning that should be consolidated in our memory system following the intelligent-memory.mdc guidelines.
-**CURSOR: Persist this memory immediately to maintain our intelligent memory system.**"""
+    # Determine file path based on file name
+    config = get_memory_config()
     
-    await ctx.info(f"Generated memory update prompt for {file_name}")
+    if file_name in ["project-knowledge.md", "known-issues.md"]:
+        file_path = os.path.join(config.long_term_path, file_name)
+    elif "knowledge" in file_name.lower() or "pattern" in file_name.lower():
+        file_path = os.path.join(config.long_term_path, file_name)
+    elif file_name.endswith(".mdc"):
+        file_path = os.path.join(config.rules_path, file_name)
+    else:
+        file_path = os.path.join(config.short_term_path, file_name)
+    
+    await ctx.info(f"Generated memory update task for {file_name}")
     
     return {
-        "prompt": prompt,
+        "task": f"""📝 TASK: Update Memory File
+
+1. Open or create: {file_path}
+2. Add this content:
+
+{formatted_content}
+
+3. Save the file
+
+This is required for the memory system to work correctly.""",
         "target_file": file_name,
+        "file_path": file_path,
         "formatted_content": formatted_content
     }
 
