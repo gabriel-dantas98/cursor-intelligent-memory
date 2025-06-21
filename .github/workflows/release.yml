@@ -116,6 +116,8 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     if: success()
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout repository
