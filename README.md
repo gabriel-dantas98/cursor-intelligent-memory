@@ -22,7 +22,7 @@ Sistema de memória inteligente para Cursor IDE que mantém contexto persistente
         "run", "--rm", "-i",
         "-v", "./:/workspace",
         "-w", "/workspace",
-        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory:main"
+        "ghcr.io/gabriel-dantas98/cursor-intelligent-memory:0.0.4"
       ],
       "cwd": "."
     }
@@ -105,5 +105,5 @@ O sistema funciona como memória humana:
 ## Repositório
 
 - **GitHub**: https://github.com/gabriel-dantas98/cursor-intelligent-memory
-- **Docker**: `ghcr.io/gabriel-dantas98/cursor-intelligent-memory:main`
+- **Docker**: `ghcr.io/gabriel-dantas98/cursor-intelligent-memory:0.0.4`
 - **Licença**: MIT
