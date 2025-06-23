@@ -1,0 +1,186 @@
+---
+description: 
+globs: README.**,README.**.md
+alwaysApply: false
+---
+# README Maintenance & Synchronization Rule
+
+## Core Principle
+**ALWAYS maintain README files updated and synchronized at the end of every development iteration.**
+
+## Mandatory README Operations
+
+### 1. End-of-Iteration Protocol
+After EVERY significant change, task completion, or development session:
+
+```markdown
+🔄 **README Sync Protocol Initiated**
+- Analyzing changes since last update
+- Checking README.md accuracy
+- Generating/updating README.en-us.md
+- Validating cross-references
+```
+
+### 2. Multi-Language Synchronization
+
+**Primary README** ([README.md](mdc:README.md)):
+- Portuguese language (primary)
+- Complete feature documentation
+- Installation instructions
+- Usage examples
+- Development guide
+
+**English README** ([README.en-us.md](mdc:README.en-us.md)):
+- English translation of README.md
+- Same structure and content depth
+- Culturally appropriate examples
+- International audience focus
+
+### 3. Automatic Update Triggers
+
+**When to update READMEs**:
+- ✅ New feature added or modified
+- ✅ Installation process changed
+- ✅ API/tools modified
+- ✅ Configuration requirements updated
+- ✅ Dependencies changed ([pyproject.toml](mdc:pyproject.toml))
+- ✅ Docker configuration updated ([Dockerfile](mdc:Dockerfile))
+- ✅ Makefile commands changed ([Makefile](mdc:mcp:Makefile))
+
+### 4. README Content Requirements
+
+**Both READMEs must include**:
+
+1. **Project Description**
+   - Clear purpose statement
+   - Key benefits/features
+   - Target audience
+
+2. **Installation Section**
+   - Docker installation (recommended)
+   - Python installation (alternative)
+   - Configuration in `.cursor/mcp.json`
+   - Prerequisites and dependencies
+
+3. **Usage Guide**
+   - Step-by-step setup
+   - Basic usage examples
+   - Expected file structure
+
+4. **Available Tools**
+   - Current MCP tools from [server.py](mdc:src/memory_mcp_server/server.py)
+   - Tool descriptions and parameters
+   - Usage examples
+
+5. **Development Section**
+   - All Makefile commands
+   - Development workflow
+   - Testing procedures
+   - Build/deploy instructions
+
+6. **Technical Details**
+   - Architecture overview
+   - How the system works
+   - Memory system explanation
+
+### 5. Content Synchronization Rules
+
+**Portuguese → English Translation Guidelines**:
+- Keep technical terms in English when appropriate
+- Adapt cultural references for international audience
+- Maintain same section structure
+- Preserve all technical accuracy
+- Use clear, professional English
+
+**Consistency Checks**:
+- Version numbers match
+- Installation commands identical
+- Tool names and descriptions consistent
+- File paths and references accurate
+- External links working
+
+### 6. Update Process
+
+**Step-by-step maintenance**:
+
+1. **Analyze Changes**
+   ```markdown
+   📋 **Change Analysis**
+   - Files modified: [list]
+   - Features added/changed: [summary]
+   - Breaking changes: [yes/no]
+   ```
+
+2. **Update README.md**
+   - Reflect all current functionality
+   - Update version-specific information
+   - Verify all examples work
+   - Check internal file references
+
+3. **Generate README.en-us.md**
+   - Translate Portuguese content to English
+   - Adapt examples for international audience
+   - Maintain technical precision
+   - Keep same structure and depth
+
+4. **Cross-Validation**
+   - Compare both files for consistency
+   - Test all installation commands
+   - Verify all file references exist
+   - Check external links
+
+5. **Memory System Integration**
+   - Update project knowledge with README changes
+   - Document any patterns discovered
+   - Note recurring maintenance tasks
+
+### 7. Quality Assurance
+
+**Before finalizing**:
+- [ ] Both READMEs have identical structure
+- [ ] All technical information is current
+- [ ] Installation instructions tested
+- [ ] Development commands verified
+- [ ] File references validated
+- [ ] External links checked
+- [ ] Language quality appropriate
+- [ ] Memory system updated
+
+### 8. Automation Notifications
+
+**Required status updates**:
+```markdown
+📖 **README Maintenance Complete**
+- README.md: [Updated/Current]
+- README.en-us.md: [Updated/Generated/Current]
+- Changes reflected: [summary]
+- Cross-references validated: ✅
+- Memory updated: ✅
+```
+
+## Implementation Strategy
+
+### When NOT to Update
+- Minor code formatting changes
+- Internal refactoring without API changes
+- Temporary debugging modifications
+- Work-in-progress commits
+
+### Emergency Updates
+For critical fixes or security updates:
+1. Update READMEs immediately
+2. Mark as emergency update
+3. Prioritize accuracy over perfect translation
+4. Schedule full review in next iteration
+
+## Success Metrics
+
+✅ **READMEs never more than 1 iteration behind codebase**
+✅ **English README always available and accurate**
+✅ **Zero broken internal references**
+✅ **Installation instructions always work**
+✅ **Documentation matches actual tool functionality**
+
+---
+
+**Remember**: Good documentation is as important as good code. Keep READMEs current, accurate, and accessible to both Portuguese and English-speaking developers.
